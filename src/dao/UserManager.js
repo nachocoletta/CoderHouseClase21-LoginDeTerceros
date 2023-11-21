@@ -1,5 +1,5 @@
 import UserModel from "../models/user.model.js";
-import { Exception } from '../helpers/utils.js';
+import { Exception, createHash } from '../helpers/utils.js';
 
 export default class UserManager {
     static async get(query = {}) {
@@ -16,11 +16,18 @@ export default class UserManager {
         return result
     }
     static async getById(uid) {
-        const user = await UserModel.findById(uid);
-        if (!user) {
-            throw new Exception('No existe el usuario', 404)
+        try {
+            const user = await UserModel.findById(uid);
+
+            console.log("user", user);
+            if (!user) {
+                throw new Exception('No existe el usuario', 404)
+            }
+            return user;
+        } catch (error) {
+            console.error('Error al crear el usuario', error.message)
+            // throw new Exception("No se pudo obtener el usuario ", 500);
         }
-        return user;
     }
 
     static async create(newUser = {}) {
@@ -30,6 +37,20 @@ export default class UserManager {
         } catch (error) {
             console.error('Error al crear el usuario', error.message)
             throw new Exception("No se pudo crear el usuario ", 500);
+        }
+    }
+
+    static async update(email, newPassword) {
+        try {
+            const updatedUser = await UserModel.updateOne({ email }, {
+                $set: {
+                    password: createHash(newPassword)
+                }
+            })
+            return updatedUser
+        } catch (error) {
+            console.error('Error al actualizar el usuario', error.message)
+            throw new Exception("No se pudo actualizar el usuario ", 500);
         }
     }
 }

@@ -30,6 +30,9 @@ router.get('/login', publicRouters, (req, res) => {
 router.get('/register', publicRouters, (req, res) => {
     res.render('register', { title: 'Register' });
 });
+router.get('/password-recovery', publicRouters, (req, res) => {
+    res.render('password-recovery', { title: "Recuperar password" })
+})
 
 router.get('/', (req, res) => {
     res.send('<h1>Hello People 😎!</h1>');

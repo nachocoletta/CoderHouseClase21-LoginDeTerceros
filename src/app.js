@@ -2,11 +2,18 @@ import express from 'express';
 import expressSession from 'express-session';
 import handlebars from 'express-handlebars';
 import path from 'path';
+import passport from 'passport';
 import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import MongoStore from 'connect-mongo';
 import 'dotenv/config';
+
+
+
+import { init as initPassportConfig } from './config/passport.config.js';
+
+
 import indexRouter from './routers/api/index.router.js';
 // import { __dirname } from './helpers/utils.js';
 import productsApiRouter from './routers/api/products.router.js'
@@ -53,6 +60,12 @@ app.use(express.static(publicDir));
 app.engine('handlebars', handlebars.engine());
 app.set('views', path.join(__dirname, './views'));
 app.set('view engine', 'handlebars');
+
+initPassportConfig();
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.get('/', (req, res) => {
   res.redirect('/products');

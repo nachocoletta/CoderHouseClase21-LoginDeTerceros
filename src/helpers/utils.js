@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
 import multer from "multer";
-import { log } from "console";
+import bcrypt from 'bcrypt';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -94,5 +94,13 @@ const storage = multer.diskStorage({
         cb(null, filename.replace(/\\/g, "/")); // Reemplazar barras invertidas con barras normales
     }
 });
+
+export const createHash = (password) => {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
+}
+
+export const isValidPassword = (plainPasswordFromLogin, user) => {
+    return bcrypt.compareSync(plainPasswordFromLogin, user.password)
+}
 
 export const uploader = multer({ storage })
