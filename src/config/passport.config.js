@@ -1,11 +1,18 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as GithubStrategy } from 'passport-github2'
 import { createHash, isValidPassword } from '../helpers/utils.js';
 import UserManager from '../dao/UserManager.js';
+import 'dotenv/config';
 
 const options = {
     usernameField: 'email',
     passReqToCallback: true,
+}
+const githubOptions = {
+    clientID: process.env.CLIENT_GITHUB,
+    clientSecret: process.env.SECRET_GITHUB,
+    callbackURL: process.env.URL_CALLBACK_GITHUB
 }
 
 export const init = () => {
@@ -41,6 +48,28 @@ export const init = () => {
             done(new Error(`Ocurrio un error durante la autenticacion ${error.message}.`));
         }
     }))
+
+    passport.use('github', new GithubStrategy(githubOptions, async (accessToken, refreshToken, profile, done) => {
+        // console.log('profile', profile)
+        const email = profile._json.email
+        let user = await UserManager.getByMail(email)
+        if (user) {
+            return done(null, user)
+        }
+        user = {
+            first_name: profile._json.name,
+            last_name: '',
+            email,
+            age: 45,
+            password: "",
+            rol: "user",
+            provider: "Github"
+        }
+        const newUser = await UserManager.create(user);
+        done(null, newUser);
+
+    }))
+
     passport.serializeUser((user, done) => {
         done(null, user._id);
     });

@@ -19,7 +19,7 @@ export default class UserManager {
         try {
             const user = await UserModel.findById(uid);
 
-            console.log("user", user);
+            // console.log("user", user);
             if (!user) {
                 throw new Exception('No existe el usuario', 404)
             }
